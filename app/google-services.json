@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "630434942049",
+    "project_id": "chatup-e97fb",
+    "storage_bucket": "chatup-e97fb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:630434942049:android:c8f809adab3b4f5f4b2e20",
+        "android_client_info": {
+          "package_name": "com.example.chat_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCFwNEC60JPkezpSrpHJ5GZBYcbqca_NE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:630434942049:android:690bd2ec03b11d754b2e20",
+        "android_client_info": {
+          "package_name": "dev.pinkpants.chatup"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCFwNEC60JPkezpSrpHJ5GZBYcbqca_NE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

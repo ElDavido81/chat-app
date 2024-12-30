@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+
+    // Add the dependency for the Google services Gradle plugin
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -36,6 +39,13 @@ android {
 }
 
 dependencies {
+
+    implementation("com.google.gms:google-services:4.4.2")
+
+    //Firebase
+    implementation ("com.google.firebase:firebase-messaging:24.1.0")
+    implementation ("com.google.firebase:firebase-firestore:25.1.1")
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

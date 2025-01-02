@@ -40,6 +40,8 @@ android {
 
 dependencies {
 
+    implementation("com.google.firebase:firebase-auth:23.1.0")
+    implementation("com.google.firebase:firebase-storage:21.0.1")
     implementation("com.google.gms:google-services:4.4.2")
 
     //Firebase

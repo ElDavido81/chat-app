@@ -51,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/editTextPassword"
         android:text="Sign up"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:background="@drawable/button_background"/>

@@ -33,7 +33,7 @@ class LoginFragment : Fragment() {
             view.findViewById<Button>(R.id.btn_auth_login).setOnClickListener {
             etEmail = view.findViewById(R.id.et_login_email)
             etPassword = view.findViewById(R.id.et_login_password)
-            login(etEmail.text.toString(), etPassword.text.toString())
+            login(etEmail.text.toString().trim(), etPassword.text.toString().trim())
         }
 
     }

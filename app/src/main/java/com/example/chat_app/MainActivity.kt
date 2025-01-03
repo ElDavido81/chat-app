@@ -1,19 +1,19 @@
 package com.example.chat_app
 
 import android.os.Bundle
-import android.text.TextUtils.replace
-import android.widget.FrameLayout
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.chat_app.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
-    lateinit var fragmentContainer: FrameLayout
     lateinit var binding: ActivityMainBinding
 
+    val authViewModel: AuthViewModel by viewModels()
     val launchFragment = LaunchFragment()
+    val chatLogFragment = ChatLogFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,12 +26,25 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        launchFragment()
+        authViewModel.isLoggedIn.observe(this) { value ->
+            if (value){
+                chatLogFragment()
+            } else {
+                launchFragment()
+            }
+        }
     }
 
     private fun launchFragment() {
         supportFragmentManager.beginTransaction().apply {
             replace(binding.mainContainer.id, launchFragment)
+            commit()
+        }
+    }
+
+    private fun chatLogFragment() {
+        supportFragmentManager.beginTransaction().apply {
+            replace(binding.mainContainer.id, chatLogFragment)
             commit()
         }
     }

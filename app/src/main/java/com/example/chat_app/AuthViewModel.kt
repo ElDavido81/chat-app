@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 
 class AuthViewModel: ViewModel() {
@@ -18,11 +19,18 @@ class AuthViewModel: ViewModel() {
     }
 
 
-    fun login(etEmail : String, etPassword : String) {
+    fun login(etEmail : String, etPassword : String, onUpdate: (isUser: FirebaseUser?) -> Unit) {
         auth.signInWithEmailAndPassword(etEmail, etPassword)
+            .addOnCompleteListener {
+                onUpdate(auth.currentUser)
+            }
     }
 
     fun register(name: String, email: String, password: String) {
 
+    }
+
+    fun signOut() {
+        auth.signOut()
     }
 }

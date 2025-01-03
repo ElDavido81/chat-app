@@ -13,7 +13,7 @@ android {
     defaultConfig {
         applicationId = "com.example.chat_app"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -40,13 +40,13 @@ android {
 
 dependencies {
 
-    implementation("com.google.firebase:firebase-auth:23.1.0")
-    implementation("com.google.firebase:firebase-storage:21.0.1")
-    implementation("com.google.gms:google-services:4.4.2")
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.storage)
+    implementation(libs.google.services)
 
     //Firebase
-    implementation ("com.google.firebase:firebase-messaging:24.1.0")
-    implementation ("com.google.firebase:firebase-firestore:25.1.1")
+    implementation (libs.firebase.messaging)
+    implementation (libs.firebase.firestore)
 
 
     implementation(libs.androidx.core.ktx)

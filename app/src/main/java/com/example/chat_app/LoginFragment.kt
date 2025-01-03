@@ -1,22 +1,20 @@
 package com.example.chat_app
 
 import android.os.Bundle
-import android.util.Log
+import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.EditText
+import android.widget.Toast
+import androidx.fragment.app.activityViewModels
 import com.google.android.material.textfield.TextInputEditText
-import com.google.firebase.auth.FirebaseAuth
 
 class LoginFragment : Fragment() {
-
+    private val authViewModel: AuthViewModel by activityViewModels()
     private lateinit var etEmail: TextInputEditText
     private lateinit var etPassword: TextInputEditText
-
-    private val authViewModel = AuthViewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,7 +22,6 @@ class LoginFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_login, container, false)
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -33,18 +30,28 @@ class LoginFragment : Fragment() {
             view.findViewById<Button>(R.id.btn_auth_login).setOnClickListener {
             etEmail = view.findViewById(R.id.et_login_email)
             etPassword = view.findViewById(R.id.et_login_password)
-            login(etEmail.text.toString(), etPassword.text.toString())
+                if (etEmail.text.toString().isEmpty() || etPassword.text.toString().isEmpty()) {
+                    val toast = Toast.makeText(context, "All fields must be filled.", Toast.LENGTH_LONG)
+                    toast.setGravity(Gravity.CENTER, 0, 0)
+                    toast.show()
+                } else {
+                    login(etEmail.text.toString(), etPassword.text.toString())
+                }
         }
 
     }
 
-    fun login(etEmail: String, etPassword: String){
-        val result = authViewModel.Login(etEmail, etPassword)
-
-        if (result){
-            Log.d("!!!", "Succesfully signed in!")
+    private fun login(etEmail: String, etPassword: String) {
+        authViewModel.login(etEmail, etPassword)
+        if (authViewModel.isLoggedIn.value == true){
+            parentFragmentManager.beginTransaction().apply {
+                replace(R.id.main_container, ChatLogFragment())
+                commit()
+            }
         } else {
-            Log.d("!!!", "Not signed in!")
+            val toast = Toast.makeText(context, "Incorrect email or password!", Toast.LENGTH_LONG)
+            toast.setGravity(Gravity.CENTER, 0, 0)
+            toast.show()
         }
 
     }

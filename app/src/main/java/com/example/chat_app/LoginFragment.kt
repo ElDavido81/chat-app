@@ -44,17 +44,12 @@ class LoginFragment : Fragment() {
     }
 
     private fun login(etEmail: String, etPassword: String) {
-        authViewModel.login(etEmail, etPassword)
-        if (authViewModel.isLoggedIn.value == true){
-            parentFragmentManager.beginTransaction().apply {
-                replace(R.id.main_container, ChatLogFragment())
-                commit()
+        authViewModel.login(etEmail, etPassword) { user ->
+            if (user == null) {
+                val toast = Toast.makeText(context, "Incorrect email or password!", Toast.LENGTH_LONG)
+                toast.setGravity(Gravity.CENTER, 0, 0)
+                toast.show()
             }
-        } else {
-            val toast = Toast.makeText(context, "Incorrect email or password!", Toast.LENGTH_LONG)
-            toast.setGravity(Gravity.CENTER, 0, 0)
-            toast.show()
         }
-
     }
 }

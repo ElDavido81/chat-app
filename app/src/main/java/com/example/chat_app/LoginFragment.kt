@@ -30,6 +30,7 @@ class LoginFragment : Fragment() {
             view.findViewById<Button>(R.id.btn_auth_login).setOnClickListener {
             etEmail = view.findViewById(R.id.et_login_email)
             etPassword = view.findViewById(R.id.et_login_password)
+
                 if (etEmail.text.toString().isEmpty() || etPassword.text.toString().isEmpty()) {
                     val toast = Toast.makeText(context, "All fields must be filled.", Toast.LENGTH_LONG)
                     toast.setGravity(Gravity.CENTER, 0, 0)
@@ -37,6 +38,7 @@ class LoginFragment : Fragment() {
                 } else {
                     login(etEmail.text.toString(), etPassword.text.toString())
                 }
+
         }
 
     }

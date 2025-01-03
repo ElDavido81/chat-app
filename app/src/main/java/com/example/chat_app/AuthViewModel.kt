@@ -17,7 +17,12 @@ class AuthViewModel: ViewModel() {
         }
     }
 
+
     fun login(etEmail : String, etPassword : String) {
         auth.signInWithEmailAndPassword(etEmail, etPassword)
+    }
+
+    fun register(name: String, email: String, password: String) {
+
     }
 }

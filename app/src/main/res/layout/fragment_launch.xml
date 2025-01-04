@@ -11,6 +11,7 @@
         android:layout_height="match_parent"
         android:paddingHorizontal="40dp"
         android:paddingVertical="40dp"
+        android:background="#333333"
         >
 
 
@@ -42,6 +43,7 @@
                 android:text="@string/chatup"
                 android:textAlignment="center"
                 android:textSize="55sp"
+                android:textColor="#e5e5e5"
                 android:layout_marginTop="20dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -66,9 +68,10 @@
                 android:text="@string/login"
                 android:textSize="20sp"
                 android:fontFamily="@font/baloo"
+                android:textColor="#E5E5E5"
                 android:paddingHorizontal="20dp"
                 android:paddingVertical="12dp"
-                android:backgroundTint="#65B1B1"
+                android:backgroundTint="#009999"
                 />
             <View
                 android:layout_width="20dp"
@@ -81,6 +84,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/register"
                 android:textSize="20sp"
+                android:textColor="#E5E5E5"
                 android:fontFamily="@font/baloo"
                 android:paddingVertical="12dp"
                 android:backgroundTint="#DD6B27"

@@ -75,7 +75,7 @@
         android:layout_marginTop="44dp"
         android:ems="10"
             android:textColor="#e5e5e5"
-        android:hint="Friend's Email"
+        android:hint="Friend's e-mail"
         android:fontFamily="@font/baloo"
         android:inputType="textEmailAddress"
         />
@@ -106,6 +106,7 @@
         android:fontFamily="@font/baloo"
         android:backgroundTint="#DD6B27"
         android:text="Sign Out"
+        android:textColor="#e5e5e5"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

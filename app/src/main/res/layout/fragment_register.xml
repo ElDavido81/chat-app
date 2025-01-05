@@ -11,7 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#333333"
-        android:padding="40dp"
+        android:paddingHorizontal="40dp"
+        android:paddingVertical="80dp"
         >
 
         <androidx.cardview.widget.CardView

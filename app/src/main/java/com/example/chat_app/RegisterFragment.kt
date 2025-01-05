@@ -9,6 +9,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class RegisterFragment: Fragment() {
     private lateinit var editTextName: EditText
@@ -45,14 +47,20 @@ class RegisterFragment: Fragment() {
                 toast.setGravity(Gravity.CENTER, 0, 0)
                 toast.show()
             } else {
-                registerUser(name, email, password)
+                lifecycleScope.launch {
+                    registerUser(name, email, password)
+                }
             }
         }
     }
-    private fun registerUser(name : String, email : String, password : String) {
+    private suspend fun registerUser(name : String, email : String, password : String) {
         authViewModel.register(name, email, password) { status ->
             if (status == AuthStatus.FAILURE) {
                 val toast = Toast.makeText(context, "Failed to register. Try logging in.", Toast.LENGTH_LONG)
+                toast.setGravity(Gravity.CENTER, 0, 0)
+                toast.show()
+            } else if (status == AuthStatus.NETWORKISSUES) {
+                val toast = Toast.makeText(context, "Network issues. Try again later.", Toast.LENGTH_LONG)
                 toast.setGravity(Gravity.CENTER, 0, 0)
                 toast.show()
             }

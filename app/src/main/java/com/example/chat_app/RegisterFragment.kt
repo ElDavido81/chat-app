@@ -1,11 +1,13 @@
 package com.example.chat_app
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 
 class RegisterFragment: Fragment() {
@@ -38,10 +40,22 @@ class RegisterFragment: Fragment() {
             val email = editTextEmail.text.toString().trim()
             val password = editTextPassword.text.toString().trim()
 
-            registerUser(name, email, password)
+            if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                val toast = Toast.makeText(context, "Fields cannot be empty!!!", Toast.LENGTH_LONG)
+                toast.setGravity(Gravity.CENTER, 0, 0)
+                toast.show()
+            } else {
+                registerUser(name, email, password)
+            }
         }
     }
     private fun registerUser(name : String, email : String, password : String) {
-        authViewModel.register(name, email, password)
+        authViewModel.register(name, email, password) { status ->
+            if (status == AuthStatus.FAILURE) {
+                val toast = Toast.makeText(context, "Failed to register. Try logging in.", Toast.LENGTH_LONG)
+                toast.setGravity(Gravity.CENTER, 0, 0)
+                toast.show()
+            }
+        }
     }
 }

@@ -32,6 +32,19 @@
                 android:padding="20dp"
                 >
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/registerfragtxt"
+                    android:textAlignment="center"
+                    android:textSize="30sp"
+                    android:fontFamily="@font/baloo"
+                    />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="15dp" />
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -116,13 +129,13 @@
 
         <ImageView
             android:id="@+id/imageView"
-            android:layout_width="wrap_content"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="30dp"
             android:adjustViewBounds="true"
-            android:alpha="0.2"
-            android:src="@drawable/icon_both"
+            android:alpha="0.1"
+            android:src="@drawable/icon_both_white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cv_register" />

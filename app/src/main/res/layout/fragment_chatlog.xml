@@ -3,50 +3,108 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#333333"
+    android:padding="40dp"
+    >
 
-    <ScrollView
-        android:id="@+id/friendsListScrollView"
-        android:layout_width="350dp"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_chatlog"
+        android:layout_width="match_parent"
         android:layout_height="350dp"
-        android:layout_marginTop="32dp"
+        app:cardCornerRadius="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="#e5e5e5"
+        android:padding="10dp"
+        >
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </ScrollView>
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-    <EditText
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="15dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/chatlog_list"
+                android:textAlignment="center"
+                android:textSize="30sp"
+                android:fontFamily="@font/baloo"
+                />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="15dp" />
+
+        <ScrollView
+            android:id="@+id/friendsListScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        </LinearLayout>
+
+
+
+    </androidx.cardview.widget.CardView>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/ti_friendsEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:boxCornerRadiusTopStart="15dp"
+        app:boxCornerRadiusTopEnd="15dp"
+        app:boxCornerRadiusBottomStart="15dp"
+        app:boxCornerRadiusBottomEnd="15dp"
+        android:layout_marginTop="40dp"
+        app:boxBackgroundColor="#e5e5e5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cv_chatlog"
+        >
+
+        <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/friendEmailEditText"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="44dp"
         android:ems="10"
+            android:textColor="#e5e5e5"
         android:hint="Friend's Email"
+        android:fontFamily="@font/baloo"
         android:inputType="textEmailAddress"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/friendsListScrollView" />
+        />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/newChatButton"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Start Chat"
+        android:text="Start New Chat"
+        app:cornerRadius="15dp"
+        android:padding="10sp"
+        android:fontFamily="@font/baloo"
+        android:textSize="20sp"
+        android:textColor="#e5e5e5"
+        android:backgroundTint="#009999"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/friendEmailEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/ti_friendsEmail" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/signOutButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="60dp"
+        app:cornerRadius="15dp"
+        android:fontFamily="@font/baloo"
+        android:backgroundTint="#DD6B27"
         android:text="Sign Out"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -58,9 +116,12 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:text="1234@gmail.se"
+        android:fontFamily="@font/baloo"
+        android:textColor="#e5e5e5"
         app:layout_constraintBottom_toTopOf="@+id/signOutButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/newChatButton"
         app:layout_constraintVertical_bias="1.0" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

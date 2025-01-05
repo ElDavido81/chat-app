@@ -5,8 +5,10 @@
     <string name="chatup">ChatUp!</string>
     <string name="login">Login</string>
     <string name="signup">Sign up</string>
-    <string name="loginfragtxt">Who are you?</string>
+    <string name="loginfragtxt">Welcome back!</string>
+    <string name="registerfragtxt">Who are you?</string>
     <string name="emaillogin">Email</string>
     <string name="label_password">Password</string>
     <string name="label_email">E-mail</string>
+    <string name="chatlog_list">Top conversations</string>
 </resources>

@@ -9,7 +9,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment() {
     private val authViewModel: AuthViewModel by activityViewModels()
@@ -36,14 +38,16 @@ class LoginFragment : Fragment() {
                     toast.setGravity(Gravity.CENTER, 0, 0)
                     toast.show()
                 } else {
-                    login(etEmail.text.toString(), etPassword.text.toString())
+                    lifecycleScope.launch {
+                        login(etEmail.text.toString(), etPassword.text.toString())
+                    }
                 }
 
         }
 
     }
 
-    private fun login(etEmail: String, etPassword: String) {
+    private suspend fun login(etEmail: String, etPassword: String) {
         authViewModel.login(etEmail, etPassword) { user ->
             if (user == null) {
                 val toast = Toast.makeText(context, "Incorrect email or password!", Toast.LENGTH_LONG)

@@ -116,7 +116,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:text="1234@gmail.se"
+        android:text=""
         android:fontFamily="@font/baloo"
         android:textColor="#e5e5e5"
         app:layout_constraintBottom_toTopOf="@+id/signOutButton"

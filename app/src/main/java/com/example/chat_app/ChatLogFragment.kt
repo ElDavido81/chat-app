@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 
 class ChatLogFragment : Fragment() {
@@ -24,6 +25,10 @@ class ChatLogFragment : Fragment() {
 
         view.findViewById<Button>(R.id.signOutButton).setOnClickListener {
             authViewModel.signOut()
+        }
+
+        authViewModel.user.observe(viewLifecycleOwner) { user ->
+            view.findViewById<TextView>(R.id.userEmail).text = user?.email ?: "Unavailable"
         }
     }
 }

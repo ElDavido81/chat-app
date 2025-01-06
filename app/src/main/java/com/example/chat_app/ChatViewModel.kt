@@ -37,6 +37,7 @@ class ChatViewModel : ViewModel() {
     var chatListener: ListenerRegistration? = null
 
     fun attachChatsListener(userId: String) {
+        chatsListener?.remove()
         chatsListener = db.collection("chats")
             .whereArrayContains("memberIds", userId)
             .addSnapshotListener { snapshot, e ->

@@ -26,8 +26,10 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        authViewModel.isLoggedIn.observe(this) { value ->
-            if (value){
+        authViewModel.isAuthenticated.observe(this) { value ->
+            val isLoading = value.first
+            val isLoggedIn = value.second
+            if (!isLoading && isLoggedIn) {
                 chatLogFragment()
             } else {
                 launchFragment()

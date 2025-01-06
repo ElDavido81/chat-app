@@ -1,11 +1,8 @@
 package com.example.chat_app
 
-import android.util.Log
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.android.play.core.integrity.au
-import com.google.android.play.integrity.internal.c
-import com.google.android.play.integrity.internal.u
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -13,15 +10,23 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
 
-data class User(val name: String, val userId: String)
+data class User(val name: String, val userId: String, val email: String)
 
 class AuthViewModel: ViewModel() {
-    private var _isLoggedIn: MutableLiveData<Boolean> = MutableLiveData<Boolean>(false)
-    val isLoggedIn: MutableLiveData<Boolean> = _isLoggedIn
-    private var _user: MutableLiveData<User?> = MutableLiveData<User?>(null)
-    val user: MutableLiveData<User?> = _user
     private val auth: FirebaseAuth = Firebase.auth
     private val db = Firebase.firestore
+    private var _isLoading: MutableLiveData<Boolean> = MutableLiveData(true)
+    private var _isLoggedIn: MutableLiveData<Boolean> = MutableLiveData(false)
+    val isAuthenticated: MediatorLiveData<Pair<Boolean, Boolean>> = MediatorLiveData<Pair<Boolean, Boolean>>().apply {
+        addSource(_isLoading) { loading ->
+            value = Pair(loading, _isLoggedIn.value ?: false)
+        }
+        addSource(_isLoggedIn) { loggedIn ->
+            value = Pair(_isLoading.value ?: true, loggedIn)
+        }
+    }
+    private var _user: MutableLiveData<User?> = MutableLiveData<User?>(null)
+    val user: MutableLiveData<User?> = _user
 
     init {
         checkIfUserIsLoggedIn {
@@ -29,6 +34,7 @@ class AuthViewModel: ViewModel() {
         }
         auth.addAuthStateListener {
             _isLoggedIn.value = it.currentUser != null
+            _isLoading.value = it.currentUser == null
         }
     }
 
@@ -36,7 +42,8 @@ class AuthViewModel: ViewModel() {
         if (auth.currentUser != null) {
             db.collection("users").document(auth.currentUser!!.uid).get()
                 .addOnSuccessListener {
-                    onUpdate(User(it["name"].toString(), auth.currentUser!!.uid))
+                    onUpdate(User(it["name"].toString(), auth.currentUser!!.uid, auth.currentUser!!.email.toString()))
+                    this._isLoading.value = false
                 }
                 .addOnFailureListener {
                     onUpdate(null)
@@ -44,13 +51,14 @@ class AuthViewModel: ViewModel() {
         }
     }
 
-    suspend fun login(etEmail: String, etPassword: String, onUpdate: (isUser: FirebaseUser?) -> Unit) {
+    suspend fun login(email: String, password: String, onUpdate: (isUser: FirebaseUser?) -> Unit) {
         try {
-            auth.signInWithEmailAndPassword(etEmail, etPassword).await()
+            auth.signInWithEmailAndPassword(email, password).await()
 
             val userData = db.collection("users").document(auth.currentUser!!.uid).get().await()
-            _user.value = User(userData["name"].toString(), auth.currentUser!!.uid)
+            _user.value = User(userData["name"].toString(), auth.currentUser!!.uid, email)
             onUpdate(auth.currentUser)
+            _isLoading.value = false
         } catch (e: Exception) {
             onUpdate(null)
         }
@@ -65,8 +73,9 @@ class AuthViewModel: ViewModel() {
                 db.collection("users").document(userId)
                     .set(mapOf("name" to name)).await()
 
-                _user.value = User(name, userId)
+                _user.value = User(name, userId, email)
                 onUpdate(AuthStatus.SUCCESS)
+                this._isLoading.value = false
             } else {
                 onUpdate(AuthStatus.FAILURE)
             }

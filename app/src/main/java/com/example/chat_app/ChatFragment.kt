@@ -43,8 +43,8 @@ class ChatFragment : Fragment() {
             val newMessages = chat.messages
             if (newMessages.size > oldMessageCount) {
                 messagesAdapter.messages = newMessages
-                messagesAdapter.notifyItemInserted(newMessages.size - 1)
-                chatRecyclerView.scrollToPosition(newMessages.size - 1)
+                messagesAdapter.notifyItemInserted((newMessages?.size - 1) ?: 0)
+                chatRecyclerView.scrollToPosition((newMessages?.size - 1) ?: 0)
             }
         }
 

@@ -12,19 +12,19 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_chatList"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
-        app:cardCornerRadius="15dp"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:background="#e5e5e5"
-        app:contentPadding="15dp" >
+        >
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview"
         android:layout_alignParentTop="true"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        tools:listitem="@layout/list_item"
+        />
 
     </androidx.cardview.widget.CardView>
 
@@ -52,7 +52,7 @@
             app:hintEnabled="false"
             >
             <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/messagebox"
+            android:id="@+id/messageBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
                 android:layout_gravity="top"

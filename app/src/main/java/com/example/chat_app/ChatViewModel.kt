@@ -14,13 +14,13 @@ data class Message(
     val messageId: String,
     val messageByUserId: String,
     val message: String,
-    val messageReadBy: List<String>,
-    val timestamp: Timestamp
-)
+    val timestamp: Timestamp,
+//    val messageReadBy: List<String>
+    )
 
 data class Chat (
     val chatId: String,
-    val memberIds: List<String>,
+    val membersId: List<String>,
     var messages: List<Message>? = null,
     val lastUpdated: Timestamp
 )
@@ -54,7 +54,7 @@ class ChatViewModel : ViewModel() {
                         try {
                             val chat = Chat(
                                 chatId = document.id,
-                                memberIds = document.get("memberIds") as? List<String> ?: emptyList(),
+                                membersId = document.get("membersId") as? List<String> ?: emptyList(),
                                 lastUpdated = document.getTimestamp("lastUpdated") ?: Timestamp.now()
                             )
                             chatsList.add(chat)
@@ -112,6 +112,57 @@ class ChatViewModel : ViewModel() {
             onUpdate(CreateChatStatus.FAILURE, null)
             Log.d("!!!!", ex.toString())
         }
+    }
+
+    suspend fun attachChatListener(chatId: String) {
+        // Remove any existing listener for the chat
+        chatListener?.remove()
+
+        // Fetch the chat document
+        val chatDoc = db.collection("chats").document(chatId).get().await()
+
+        // Initialize the chat in the LiveData
+        _chat.value = Chat(
+            chatId = chatDoc.id,
+            membersId = chatDoc.get("membersId") as? List<String> ?: emptyList(),
+            lastUpdated = chatDoc.getTimestamp("lastUpdated") ?: Timestamp.now(),
+            messages = emptyList() // Initialize with an empty list
+        )
+
+        val messagesRef = db.collection("chats")
+            .document(chatId)
+            .collection("messages")
+
+        chatListener = messagesRef
+            .orderBy("timestamp")
+            .limit(100)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("ChatViewModel", "Error listening to messages: ${error.message}")
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    val messageList = snapshot.documents.mapNotNull { doc ->
+                        try {
+                            Message(
+                                messageId = doc.id,
+                                messageByUserId = doc.getString("messageByUserId") ?: "",
+                                message = doc.getString("message") ?: "",
+                                timestamp = doc.getTimestamp("timestamp") ?: Timestamp.now()
+                            )
+                        } catch (e: Exception) {
+                            Log.e("ChatViewModel", "Error parsing message document", e)
+                            null
+                        }
+                    }
+
+                    _chat.value = _chat.value?.copy(
+                        messages = messageList
+                    )
+                    Log.d("ChatViewModel", "Loaded messages: $messageList")
+                }
+            }
     }
 
     override fun onCleared() {

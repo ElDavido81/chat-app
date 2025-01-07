@@ -8,17 +8,21 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.launch
 
 class ChatFragment: Fragment() {
 
+    private val chatViewModel: ChatViewModel by activityViewModels()
     private var chatId: String? = null
     private lateinit var messageBox: EditText
     private lateinit var chatRecyclerView: RecyclerView
 
     // Behöver kopplas till Firebase //
-    private val messages = mutableListOf<String>()
+//    private val messages = mutableListOf<String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,10 +35,20 @@ class ChatFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
         chatId = arguments?.getString("chatId")
 
-        // Attach Chat listener using chatId above.
-        // Observe chat prop in CVM
+        if (chatId != null) {
+            lifecycleScope.launch {
+                chatViewModel.attachChatListener(chatId!!)
+            }
+        } else {
+            Log.e("ChatFragment", "chatId is null")
+        }
 
-//
+        chatViewModel.chat.observe(viewLifecycleOwner) { chat ->
+            // Tillgång till meddelanden här!
+            // chat.messages
+            // Använd recyclerView här...
+        }
+
 //        chatRecyclerView = view.findViewById(R.id.recyclerview)
 //        chatRecyclerView.layoutManager = LinearLayoutManager(context)
 //        chatRecyclerView.adapter = MessagesAdapter(messages)
@@ -55,5 +69,4 @@ class ChatFragment: Fragment() {
 //            chatRecyclerView.adapter?.notifyItemInserted(messages.lastIndex)
 //
 //    }
-
 }

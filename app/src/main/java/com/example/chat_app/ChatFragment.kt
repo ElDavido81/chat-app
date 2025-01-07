@@ -30,7 +30,7 @@ class ChatFragment: Fragment() {
 
         chatRecyclerView = view.findViewById(R.id.recyclerview)
         chatRecyclerView.layoutManager = LinearLayoutManager(context)
-        chatRecyclerView.adapter = ChatAdapter(messages)
+        chatRecyclerView.adapter = MessagesAdapter(messages)
 
         messageBox = view.findViewById(R.id.messageBox)
         val sendButton = view.findViewById<Button>(R.id.sendButton)

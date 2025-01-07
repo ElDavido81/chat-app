@@ -121,6 +121,8 @@ class ChatViewModel : ViewModel() {
                 "timestamp" to FieldValue.serverTimestamp())
             )
             .await()
+
+        db.collection("chats").document(chatId).update("lastUpdated", FieldValue.serverTimestamp()).await()
     }
 
     override fun onCleared() {

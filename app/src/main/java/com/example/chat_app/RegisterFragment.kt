@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
@@ -19,7 +20,7 @@ class RegisterFragment: Fragment() {
 
     private lateinit var buttonSignUp: Button
 
-    private val authViewModel = AuthViewModel()
+    private val authViewModel: AuthViewModel by activityViewModels()
 
 
     override fun onCreateView(

@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class ChatAdapter(val messages: MutableList<String>) : RecyclerView.Adapter<ChatAdapter.ChatViewHolder>()  {
+class MessagesAdapter(val messages: MutableList<String>) : RecyclerView.Adapter<MessagesAdapter.ChatViewHolder>()  {
 
 
     // Skapar en ny 'rad' (ViewHolder) i vår recyclerview

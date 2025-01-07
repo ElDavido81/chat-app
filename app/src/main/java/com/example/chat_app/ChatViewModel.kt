@@ -115,18 +115,15 @@ class ChatViewModel : ViewModel() {
     }
 
     suspend fun attachChatListener(chatId: String) {
-        // Remove any existing listener for the chat
         chatListener?.remove()
 
-        // Fetch the chat document
         val chatDoc = db.collection("chats").document(chatId).get().await()
 
-        // Initialize the chat in the LiveData
         _chat.value = Chat(
             chatId = chatDoc.id,
             membersId = chatDoc.get("membersId") as? List<String> ?: emptyList(),
             lastUpdated = chatDoc.getTimestamp("lastUpdated") ?: Timestamp.now(),
-            messages = emptyList() // Initialize with an empty list
+            messages = emptyList()
         )
 
         val messagesRef = db.collection("chats")

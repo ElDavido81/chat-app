@@ -1,6 +1,7 @@
 package com.example.chat_app
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 class ChatFragment: Fragment() {
 
+    private var chatId: String? = null
     private lateinit var messageBox: EditText
     private lateinit var chatRecyclerView: RecyclerView
 
@@ -27,27 +29,31 @@ class ChatFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        chatId = arguments?.getString("chatId")
 
-        chatRecyclerView = view.findViewById(R.id.recyclerview)
-        chatRecyclerView.layoutManager = LinearLayoutManager(context)
-        chatRecyclerView.adapter = MessagesAdapter(messages)
+        // Attach Chat listener using chatId above.
+        // Observe chat prop in CVM
 
-        messageBox = view.findViewById(R.id.messageBox)
-        val sendButton = view.findViewById<Button>(R.id.sendButton)
-
-        sendButton.setOnClickListener {
-            newMessage()
-        }
-
+//
+//        chatRecyclerView = view.findViewById(R.id.recyclerview)
+//        chatRecyclerView.layoutManager = LinearLayoutManager(context)
+//        chatRecyclerView.adapter = MessagesAdapter(messages)
+//
+//        messageBox = view.findViewById(R.id.messageBox)
+//        val sendButton = view.findViewById<Button>(R.id.sendButton)
+//
+//        sendButton.setOnClickListener {
+//            newMessage()
+//        }
     }
 
 // Behöver kopplas till Firebase //
-
-    private fun newMessage() {
-            val message = messageBox.text.toString()
-            messages.add(message)
-            chatRecyclerView.adapter?.notifyItemInserted(messages.lastIndex)
-
-    }
+//
+//    private fun newMessage() {
+//            val message = messageBox.text.toString()
+//            messages.add(message)
+//            chatRecyclerView.adapter?.notifyItemInserted(messages.lastIndex)
+//
+//    }
 
 }

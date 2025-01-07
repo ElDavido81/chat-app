@@ -1,10 +1,8 @@
 package com.example.chat_app
 
 import android.util.Log
-import androidx.databinding.BaseObservable
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.android.play.core.integrity.au
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ListenerRegistration
@@ -22,7 +20,6 @@ data class Message(
 
 data class Chat (
     val chatId: String,
-    val chatName: String,
     val memberIds: List<String>,
     var messages: List<Message>? = null,
     val lastUpdated: Timestamp
@@ -57,7 +54,6 @@ class ChatViewModel : ViewModel() {
                         try {
                             val chat = Chat(
                                 chatId = document.id,
-                                chatName = document.getString("chatName") ?: "",
                                 memberIds = document.get("memberIds") as? List<String> ?: emptyList(),
                                 lastUpdated = document.getTimestamp("lastUpdated") ?: Timestamp.now()
                             )
@@ -73,7 +69,7 @@ class ChatViewModel : ViewModel() {
             }
     }
 
-    suspend fun createConversation(creatorUserId: String, receiverEmail: String, onUpdate: (result: CreateChatStatus) -> Unit) {
+    suspend fun createConversation(creatorUserId: String, receiverEmail: String, onUpdate: (result: CreateChatStatus, chatId: String?) -> Unit) {
         try {
             val receiverUser = db.collection("users")
                 .whereEqualTo("email", receiverEmail)
@@ -83,31 +79,37 @@ class ChatViewModel : ViewModel() {
 
             Log.d("!!!!", receiverUser.documents.toString())
             if (receiverUser.isEmpty) {
-                onUpdate(CreateChatStatus.USERNOTFOUND)
+                onUpdate(CreateChatStatus.USERNOTFOUND, null)
             }
 
             val receiverUserId = receiverUser.documents[0].id
 
             val chatExists = db.collection("chats")
-                .whereArrayContains("membersIds",listOf(creatorUserId, receiverUserId))
-                .limit(1)
+                .whereArrayContains("membersId", creatorUserId)
                 .get()
                 .await()
 
-            Log.d("!!!!", chatExists.documents.toString())
-            if (chatExists.isEmpty) {
-                onUpdate(CreateChatStatus.CHATEXISTS)
+            val chatWithBothUsers = if (chatExists.isEmpty) null else {
+                chatExists.documents.firstOrNull { doc ->
+                    val members = doc.get("membersId") as? List<*>
+                    members?.contains(receiverUserId) == true
+                }
+            }
+
+            if (chatWithBothUsers != null) {
+                onUpdate(CreateChatStatus.CHATEXISTS, null)
+                return
             }
 
             val data = hashMapOf(
-                "membersId" to arrayListOf(creatorUserId, receiverUserId),
+                "membersId" to arrayListOf<String>(creatorUserId, receiverUserId),
                 "lastUpdated" to FieldValue.serverTimestamp()
             )
 
-            db.collection("chats").add(data).await()
-            onUpdate(CreateChatStatus.SUCCESS)
+            val newChatId = db.collection("chats").add(data).await()
+            onUpdate(CreateChatStatus.SUCCESS, newChatId.id)
         } catch (ex: Exception) {
-            onUpdate(CreateChatStatus.FAILURE)
+            onUpdate(CreateChatStatus.FAILURE, null)
             Log.d("!!!!", ex.toString())
         }
     }

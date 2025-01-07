@@ -1,12 +1,16 @@
 package com.example.chat_app
 
 import android.util.Log
+import androidx.databinding.BaseObservable
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.android.play.core.integrity.au
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.tasks.await
 
 data class Message(
     val messageId: String,
@@ -16,7 +20,7 @@ data class Message(
     val timestamp: Timestamp
 )
 
-data class Chat(
+data class Chat (
     val chatId: String,
     val chatName: String,
     val memberIds: List<String>,
@@ -40,6 +44,7 @@ class ChatViewModel : ViewModel() {
         chatsListener?.remove()
         chatsListener = db.collection("chats")
             .whereArrayContains("memberIds", userId)
+            .orderBy("lastUpdated")
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
                     Log.w("ChatsListener", "Listen failed.", e)
@@ -66,6 +71,45 @@ class ChatViewModel : ViewModel() {
                     _chats.value = emptyList()
                 }
             }
+    }
+
+    suspend fun createConversation(creatorUserId: String, receiverEmail: String, onUpdate: (result: CreateChatStatus) -> Unit) {
+        try {
+            val receiverUser = db.collection("users")
+                .whereEqualTo("email", receiverEmail)
+                .limit(1)
+                .get()
+                .await()
+
+            Log.d("!!!!", receiverUser.documents.toString())
+            if (receiverUser.isEmpty) {
+                onUpdate(CreateChatStatus.USERNOTFOUND)
+            }
+
+            val receiverUserId = receiverUser.documents[0].id
+
+            val chatExists = db.collection("chats")
+                .whereArrayContains("membersIds",listOf(creatorUserId, receiverUserId))
+                .limit(1)
+                .get()
+                .await()
+
+            Log.d("!!!!", chatExists.documents.toString())
+            if (chatExists.isEmpty) {
+                onUpdate(CreateChatStatus.CHATEXISTS)
+            }
+
+            val data = hashMapOf(
+                "membersId" to arrayListOf(creatorUserId, receiverUserId),
+                "lastUpdated" to FieldValue.serverTimestamp()
+            )
+
+            db.collection("chats").add(data).await()
+            onUpdate(CreateChatStatus.SUCCESS)
+        } catch (ex: Exception) {
+            onUpdate(CreateChatStatus.FAILURE)
+            Log.d("!!!!", ex.toString())
+        }
     }
 
     override fun onCleared() {

@@ -7,11 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 
 class ChatFragment : Fragment() {
@@ -19,7 +21,7 @@ class ChatFragment : Fragment() {
     private val authViewModel: AuthViewModel by activityViewModels()
 
     private var chatId: String? = null
-    private lateinit var messageBox: EditText
+    private lateinit var messageBox: TextInputEditText
     private lateinit var chatRecyclerView: RecyclerView
     private lateinit var messagesAdapter: MessagesAdapter
 
@@ -43,7 +45,7 @@ class ChatFragment : Fragment() {
         }
         
         messageBox = view.findViewById(R.id.messageBox)
-        val sendButton = view.findViewById<Button>(R.id.sendButton)
+        val sendButton = view.findViewById<ImageView>(R.id.sendButton)
         chatRecyclerView = view.findViewById(R.id.recyclerview)
         chatRecyclerView.layoutManager = LinearLayoutManager(context)
 

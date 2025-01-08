@@ -23,15 +23,6 @@ class MessagesAdapter(var messages: MutableList<Message>) : RecyclerView.Adapter
     // Binder data till varje ViewHolder. Varje elements position i listan har samma position i recyclerview
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
         holder.messageTextView.text = messages[position].message
-
-        holder.itemView.setOnLongClickListener{
-
-            messages.removeAt(position)
-            notifyItemRemoved(position)
-//            notifyDataSetChanged()   <----kollar allt
-            notifyItemRangeChanged(position, messages.size)
-            true
-        }
     }
 
 

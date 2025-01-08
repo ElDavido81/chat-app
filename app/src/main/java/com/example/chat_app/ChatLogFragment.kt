@@ -45,6 +45,9 @@ class ChatLogFragment : Fragment() {
         }
 
         authViewModel.user.observe(viewLifecycleOwner) { user ->
+            if (user?.userId != null) {
+                chatViewModel.attachChatsListener(user!!.userId, user.email)
+            }
             view.findViewById<TextView>(R.id.userEmail).text = user?.email ?: "Unavailable"
         }
 
@@ -76,7 +79,7 @@ class ChatLogFragment : Fragment() {
                 toast.show()
             } else {
                 lifecycleScope.launch {
-                    chatViewModel.createConversation(authViewModel.user.value!!.userId, receiverEmail) { status, chatId ->
+                    chatViewModel.createConversation(authViewModel.user.value!!.email, authViewModel.user.value!!.userId, receiverEmail) { status, chatId ->
                         when (status) {
                             CreateChatStatus.CHATEXISTS -> {
                                 val toast = Toast.makeText(context, "Chat already exists.", Toast.LENGTH_LONG)

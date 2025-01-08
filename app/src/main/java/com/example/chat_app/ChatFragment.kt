@@ -37,8 +37,9 @@ class ChatFragment : Fragment() {
         chatId = arguments?.getString("chatId")
 
         if (chatId != null) {
+            Log.d("!!!!useridinchat", authViewModel.user.value!!.email)
             lifecycleScope.launch {
-                chatViewModel.attachChatListener(chatId!!)
+                chatViewModel.attachChatListener(chatId!!, authViewModel.user.value!!.email)
             }
         } else {
             Log.e("ChatFragment", "chatId is null")
@@ -79,7 +80,7 @@ class ChatFragment : Fragment() {
         val userId = authViewModel.user.value?.userId ?: return
 
         lifecycleScope.launch {
-            chatViewModel.createMessage(chatId, message, userId)
+            chatViewModel.createMessage(chatId, message, userId, authViewModel.user.value!!.name)
             messageBox.setText("")
         }
     }

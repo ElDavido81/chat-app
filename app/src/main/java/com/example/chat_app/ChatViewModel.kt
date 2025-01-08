@@ -14,7 +14,8 @@ data class Message(
     val messageId: String,
     val messageByUserId: String,
     val message: String,
-    val timestamp: Timestamp
+    val timestamp: Timestamp,
+    val senderName: String
     )
 
 data class Chat (
@@ -22,7 +23,8 @@ data class Chat (
     val membersId: List<String>,
     var messages: MutableList<Message>? = null,
       // val messageReadBy: List<String>, // Ska vara bortkommenterad. Sista funktionalitet om vi hinner.
-    val lastUpdated: Timestamp
+    val lastUpdated: Timestamp,
+    val chatName: String
 )
 
 class ChatViewModel : ViewModel() {
@@ -37,7 +39,7 @@ class ChatViewModel : ViewModel() {
     var chatsListener: ListenerRegistration? = null
     var chatListener: ListenerRegistration? = null
 
-    fun attachChatsListener(userId: String) {
+    fun attachChatsListener(userId: String, listenerEmail: String) {
         chatsListener?.remove()
         chatsListener = db.collection("chats")
             .whereArrayContains("memberIds", userId)
@@ -51,11 +53,20 @@ class ChatViewModel : ViewModel() {
                 if (snapshot != null) {
                     val chatsList = mutableListOf<Chat>()
                     for (document in snapshot.documents) {
+                        var chatName = ""
+                        val emails = document.get("emails") as? List<String> ?: emptyList()
+                        for (email in emails) {
+                            if (email != listenerEmail ) {
+                                chatName = email
+                                break
+                            }
+                        }
                         try {
                             val chat = Chat(
                                 chatId = document.id,
                                 membersId = document.get("membersId") as? List<String> ?: emptyList(),
-                                lastUpdated = document.getTimestamp("lastUpdated") ?: Timestamp.now()
+                                lastUpdated = document.getTimestamp("lastUpdated") ?: Timestamp.now(),
+                                chatName = chatName
                             )
                             chatsList.add(chat)
                         } catch (ex: Exception) {
@@ -69,7 +80,7 @@ class ChatViewModel : ViewModel() {
             }
     }
 
-    suspend fun createConversation(creatorUserId: String, receiverEmail: String, onUpdate: (result: CreateChatStatus, chatId: String?) -> Unit) {
+    suspend fun createConversation(creatorEmail: String, creatorUserId: String, receiverEmail: String, onUpdate: (result: CreateChatStatus, chatId: String?) -> Unit) {
         try {
             val receiverUser = db.collection("users")
                 .whereEqualTo("email", receiverEmail)
@@ -103,7 +114,8 @@ class ChatViewModel : ViewModel() {
 
             val data = hashMapOf(
                 "membersId" to arrayListOf<String>(creatorUserId, receiverUserId),
-                "lastUpdated" to FieldValue.serverTimestamp()
+                "lastUpdated" to FieldValue.serverTimestamp(),
+                "emails" to arrayListOf<String>(creatorEmail, receiverEmail)
             )
 
             val newChatId = db.collection("chats").add(data).await()
@@ -114,16 +126,27 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    suspend fun attachChatListener(chatId: String) {
+    suspend fun attachChatListener(chatId: String, listenerEmail: String) {
         chatListener?.remove()
 
         val chatDoc = db.collection("chats").document(chatId).get().await()
 
+        val membersId = chatDoc.get("membersId") as? List<String> ?: emptyList()
+        val emails = chatDoc.get("emails") as? List<String> ?: emptyList()
+        var chatName = ""
+        for (email in emails) {
+            if (email != listenerEmail) {
+                chatName = email!!
+                break
+         }
+        }
+
         _chat.value = Chat(
             chatId = chatDoc.id,
-            membersId = chatDoc.get("membersId") as? List<String> ?: emptyList(),
+            membersId = membersId,
             lastUpdated = chatDoc.getTimestamp("lastUpdated") ?: Timestamp.now(),
-            messages = mutableListOf()
+            messages = mutableListOf(),
+            chatName = chatName
         )
 
         val messagesRef = db.collection("chats")
@@ -146,7 +169,8 @@ class ChatViewModel : ViewModel() {
                                 messageId = doc.id,
                                 messageByUserId = doc.getString("messageByUserId") ?: "",
                                 message = doc.getString("message") ?: "",
-                                timestamp = doc.getTimestamp("timestamp") ?: Timestamp.now()
+                                timestamp = doc.getTimestamp("timestamp") ?: Timestamp.now(),
+                                senderName = doc.getString("senderName") ?: ""
                             )
                         } catch (e: Exception) {
                             Log.e("ChatViewModel", "Error parsing message document", e)
@@ -164,13 +188,15 @@ class ChatViewModel : ViewModel() {
             }
     }
 
-    suspend fun createMessage(chatId: String, message: String, userId: String) {
+    suspend fun createMessage(chatId: String, message: String, userId: String, senderName: String) {
         db.collection("chats").document(chatId).collection("messages")
             .add(
                 hashMapOf(
-                "message" to message,
-                "messageByUserId" to userId,
-                "timestamp" to FieldValue.serverTimestamp())
+                    "message" to message,
+                    "senderName" to senderName,
+                    "messageByUserId" to userId,
+                    "timestamp" to FieldValue.serverTimestamp(),
+                )
             )
             .await()
 

@@ -47,7 +47,13 @@ class ChatFragment : Fragment() {
         messageBox = view.findViewById(R.id.messageBox)
         val sendButton = view.findViewById<ImageView>(R.id.sendButton)
         chatRecyclerView = view.findViewById(R.id.recyclerview)
-        chatRecyclerView.layoutManager = LinearLayoutManager(context)
+
+        val layoutManager = LinearLayoutManager(context).apply {
+            stackFromEnd = true
+            reverseLayout = false
+        }
+
+        chatRecyclerView.layoutManager = layoutManager
 
         messagesAdapter = MessagesAdapter(chatViewModel.chat.value?.messages ?: mutableListOf())
         chatRecyclerView.adapter = messagesAdapter

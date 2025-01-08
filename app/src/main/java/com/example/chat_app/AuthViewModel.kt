@@ -71,7 +71,10 @@ class AuthViewModel: ViewModel() {
             val userId = authResult.user?.uid
             if (userId != null) {
                 db.collection("users").document(userId)
-                    .set(mapOf("name" to name)).await()
+                    .set(mapOf(
+                        "name" to name,
+                        "email" to authResult.user?.email
+                    )).await()
 
                 _user.value = User(name, userId, email)
                 onUpdate(AuthStatus.SUCCESS)

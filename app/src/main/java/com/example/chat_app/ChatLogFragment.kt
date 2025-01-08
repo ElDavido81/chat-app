@@ -87,6 +87,10 @@ class ChatLogFragment : Fragment() {
                 val toast = Toast.makeText(context, "Please enter a valid email.", Toast.LENGTH_LONG)
                 toast.setGravity(Gravity.CENTER, 0, 0)
                 toast.show()
+            } else if(receiverEmail == authViewModel.user.value!!.email) {
+                val toast = Toast.makeText(context, "You cannot create a chat with yourself.", Toast.LENGTH_LONG)
+                toast.setGravity(Gravity.CENTER, 0, 0)
+                toast.show()
             } else {
                 lifecycleScope.launch {
                     chatViewModel.createConversation(authViewModel.user.value!!.email, authViewModel.user.value!!.userId, receiverEmail) { status, chatId ->

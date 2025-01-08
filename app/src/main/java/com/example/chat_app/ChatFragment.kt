@@ -66,11 +66,12 @@ class ChatFragment : Fragment() {
                 messagesAdapter.notifyItemInserted((newMessages.size - 1) ?: 0)
                 chatRecyclerView.scrollToPosition((newMessages.size - 1) ?: 0)
             }
+        }
 
         sendButton.setOnClickListener {
             newMessage()
         }
-    }
+
 }
     private fun newMessage() {
         val message = messageBox.text.toString()

@@ -46,7 +46,7 @@ class ChatLogFragment : Fragment() {
 
         authViewModel.user.observe(viewLifecycleOwner) { user ->
             if (user?.userId != null) {
-                chatViewModel.attachChatsListener(user!!.userId, user.email)
+                chatViewModel.attachChatsListener(user.userId, user.email)
             }
             view.findViewById<TextView>(R.id.userEmail).text = user?.email ?: "Unavailable"
         }
@@ -54,7 +54,18 @@ class ChatLogFragment : Fragment() {
         chatLogRecyclerView = view.findViewById(R.id.rv_chats)
         chatLogRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        chatAdapter = ChatLogAdapter(chatViewModel.chats.value!!.toMutableList())
+        chatAdapter = ChatLogAdapter(chatViewModel.chats.value!!.toMutableList()) { chatId ->
+            val chatFragment = ChatFragment().apply {
+                arguments = Bundle().apply {
+                    putString("chatId", chatId)
+                }
+            }
+            parentFragmentManager.beginTransaction().apply {
+                replace(R.id.main_container, chatFragment)
+                addToBackStack("chatlogfragment")
+                commit()
+            }
+        }
         chatLogRecyclerView.adapter = chatAdapter
 
         chatViewModel.chats.observe(viewLifecycleOwner) { chat ->
@@ -66,13 +77,11 @@ class ChatLogFragment : Fragment() {
                 chatLogRecyclerView.scrollToPosition((newChats.size - 1) ?: 0)
             }
         }
-
-
-
     }
 
     fun createChat(view: View) {
-            val receiverEmail = view.findViewById<TextInputEditText>(R.id.friendEmailEditText).text.toString()
+        val receiverEmailRef = view.findViewById<TextInputEditText>(R.id.friendEmailEditText)
+            val receiverEmail = receiverEmailRef.text.toString()
             if (receiverEmail.isEmpty()) {
                 val toast = Toast.makeText(context, "Please enter a valid email.", Toast.LENGTH_LONG)
                 toast.setGravity(Gravity.CENTER, 0, 0)
@@ -98,6 +107,7 @@ class ChatLogFragment : Fragment() {
                             }
                             CreateChatStatus.SUCCESS -> {
                                 Log.d("!!!!", "Success")
+                                receiverEmailRef.text?.clear()
                                 val chatFragment = ChatFragment().apply {
                                     arguments = Bundle().apply {
                                         putString("chatId", chatId)

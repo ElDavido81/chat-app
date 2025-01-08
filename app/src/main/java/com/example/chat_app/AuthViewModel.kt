@@ -1,5 +1,6 @@
 package com.example.chat_app
 
+import android.util.Log
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -35,6 +36,11 @@ class AuthViewModel: ViewModel() {
         auth.addAuthStateListener {
             _isLoggedIn.value = it.currentUser != null
             _isLoading.value = it.currentUser == null
+            if (it.currentUser == null) {
+                _user.value = null
+            }
+            Log.d("auth2", _isLoggedIn.value.toString())
+            Log.d("auth2", _isLoading.value.toString())
         }
     }
 
@@ -53,13 +59,15 @@ class AuthViewModel: ViewModel() {
 
     suspend fun login(email: String, password: String, onUpdate: (isUser: FirebaseUser?) -> Unit) {
         try {
-            auth.signInWithEmailAndPassword(email, password).await()
+            val authResult = auth.signInWithEmailAndPassword(email, password).await()
 
-            val userData = db.collection("users").document(auth.currentUser!!.uid).get().await()
-            _user.value = User(userData["name"].toString(), auth.currentUser!!.uid, email)
-            onUpdate(auth.currentUser)
-            _isLoading.value = false
+            Log.d("currentuser3", authResult.user?.uid ?: "Fail")
+            val userData = db.collection("users").document(authResult.user!!.uid).get().await()
+            val name = userData.getString("name")
+            _user.value = User(name!!, authResult.user!!.uid, email)
+            onUpdate(authResult.user)
         } catch (e: Exception) {
+            Log.d("currentuser2", auth.currentUser.toString())
             onUpdate(null)
         }
     }
@@ -89,6 +97,5 @@ class AuthViewModel: ViewModel() {
 
     fun signOut() {
         auth.signOut()
-        _user.value = null
     }
 }

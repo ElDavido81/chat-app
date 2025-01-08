@@ -37,6 +37,7 @@ class ChatLogFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         view.findViewById<Button>(R.id.signOutButton).setOnClickListener {
+            chatViewModel.clearListeners()
             authViewModel.signOut()
         }
 
@@ -45,10 +46,10 @@ class ChatLogFragment : Fragment() {
         }
 
         authViewModel.user.observe(viewLifecycleOwner) { user ->
-            if (user?.userId != null) {
+            if (user != null) {
                 chatViewModel.attachChatsListener(user.userId, user.email)
+                view.findViewById<TextView>(R.id.userEmail).text = user.email
             }
-            view.findViewById<TextView>(R.id.userEmail).text = user?.email ?: "Unavailable"
         }
 
         chatLogRecyclerView = view.findViewById(R.id.rv_chats)

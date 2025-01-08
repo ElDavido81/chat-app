@@ -1,6 +1,7 @@
 package com.example.chat_app
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.Timestamp
@@ -34,15 +35,16 @@ class ChatViewModel : ViewModel() {
     val chats: MutableLiveData<MutableList<Chat>> = _chats
 
     private var _chat: MutableLiveData<Chat?> = MutableLiveData(null)
-    val chat: MutableLiveData<Chat?> = _chat
+    val chat: LiveData<Chat?> = _chat
 
     var chatsListener: ListenerRegistration? = null
     var chatListener: ListenerRegistration? = null
 
     fun attachChatsListener(userId: String, listenerEmail: String) {
         chatsListener?.remove()
+
         chatsListener = db.collection("chats")
-            .whereArrayContains("memberIds", userId)
+            .whereArrayContains("membersId", userId)
             .orderBy("lastUpdated")
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
@@ -50,32 +52,39 @@ class ChatViewModel : ViewModel() {
                     return@addSnapshotListener
                 }
 
+                snapshot?.documents?.forEach { doc ->
+                    Log.d("ChatsListener", "Document: ${doc.id}, Data: ${doc.data}")
+                }
+
                 if (snapshot != null) {
-                    val chatsList = mutableListOf<Chat>()
-                    for (document in snapshot.documents) {
+                    val chatsList = snapshot.documents.mapNotNull { doc ->
                         var chatName = ""
-                        val emails = document.get("emails") as? List<String> ?: emptyList()
+                        val emails = doc.get("emails") as? List<String> ?: emptyList()
+                        Log.d("emails", emails.toString())
+
                         for (email in emails) {
-                            if (email != listenerEmail ) {
+                            if (email != listenerEmail) {
                                 chatName = email
                                 break
                             }
                         }
+
                         try {
-                            val chat = Chat(
-                                chatId = document.id,
-                                membersId = document.get("membersId") as? List<String> ?: emptyList(),
-                                lastUpdated = document.getTimestamp("lastUpdated") ?: Timestamp.now(),
+                            Chat(
+                                chatId = doc.id,
+                                membersId = doc.get("memberIds") as? List<String> ?: emptyList(),
+                                lastUpdated = doc.getTimestamp("lastUpdated") ?: Timestamp.now(),
                                 chatName = chatName
                             )
-                            chatsList.add(chat)
                         } catch (ex: Exception) {
                             Log.e("ChatsListener", "Error parsing chat document", ex)
+                            null
                         }
                     }
-                    _chats.value = chatsList
+
+                    _chats.postValue(chatsList.toMutableList())
                 } else {
-                    _chats.value = mutableListOf()
+                    _chats.postValue(mutableListOf())
                 }
             }
     }

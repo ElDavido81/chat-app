@@ -3,5 +3,6 @@ package com.example.chat_app
 enum class AuthStatus {
     FAILURE,
     SUCCESS,
-    NETWORKISSUES
+    NETWORKISSUES,
+    PASSWORD_TOO_SHORT
 }

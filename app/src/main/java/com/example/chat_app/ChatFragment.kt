@@ -18,7 +18,6 @@ class ChatFragment : Fragment() {
     private val chatViewModel: ChatViewModel by activityViewModels()
     private val authViewModel: AuthViewModel by activityViewModels()
 
-    private val chatViewModel: ChatViewModel by activityViewModels()
     private var chatId: String? = null
     private lateinit var messageBox: EditText
     private lateinit var chatRecyclerView: RecyclerView
@@ -49,15 +48,15 @@ class ChatFragment : Fragment() {
         chatRecyclerView.layoutManager = LinearLayoutManager(context)
 
         messagesAdapter = MessagesAdapter(chatViewModel.chat.value?.messages ?: mutableListOf())
-        chatRecyclerView.adapter = MessagesAdapter(messages)
+        chatRecyclerView.adapter = messagesAdapter
 
         chatViewModel.chat.observe(viewLifecycleOwner) { chat ->
             val oldMessageCount = messagesAdapter.itemCount
-            val newMessages = chat.messages
+            val newMessages = chat?.messages ?: mutableListOf()
             if (newMessages.size > oldMessageCount) {
                 messagesAdapter.messages = newMessages
-                messagesAdapter.notifyItemInserted((newMessages?.size - 1) ?: 0)
-                chatRecyclerView.scrollToPosition((newMessages?.size - 1) ?: 0)
+                messagesAdapter.notifyItemInserted((newMessages.size - 1) ?: 0)
+                chatRecyclerView.scrollToPosition((newMessages.size - 1) ?: 0)
             }
 
         sendButton.setOnClickListener {
@@ -65,8 +64,6 @@ class ChatFragment : Fragment() {
         }
     }
 }
-    }
-
     private fun newMessage() {
         val message = messageBox.text.toString()
         val chatId = chatViewModel.chat.value?.chatId ?: return
@@ -78,3 +75,4 @@ class ChatFragment : Fragment() {
         }
     }
 }
+

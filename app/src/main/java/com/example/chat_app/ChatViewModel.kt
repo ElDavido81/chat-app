@@ -19,8 +19,7 @@ data class Message(
 
 data class Chat (
     val chatId: String,
-    val chatName: String,
-    val memberIds: List<String>,
+    val membersId: List<String>,
     var messages: MutableList<Message>? = null,
       // val messageReadBy: List<String>, // Ska vara bortkommenterad. Sista funktionalitet om vi hinner.
     val lastUpdated: Timestamp
@@ -29,8 +28,8 @@ data class Chat (
 class ChatViewModel : ViewModel() {
     private val db = Firebase.firestore
 
-    private var _chats: MutableLiveData<List<Chat>> = MutableLiveData(emptyList())
-    val chats: MutableLiveData<List<Chat>> = _chats
+    private var _chats: MutableLiveData<MutableList<Chat>> = MutableLiveData(mutableListOf())
+    val chats: MutableLiveData<MutableList<Chat>> = _chats
 
     private var _chat: MutableLiveData<Chat?> = MutableLiveData(null)
     val chat: MutableLiveData<Chat?> = _chat
@@ -65,7 +64,7 @@ class ChatViewModel : ViewModel() {
                     }
                     _chats.value = chatsList
                 } else {
-                    _chats.value = emptyList()
+                    _chats.value = mutableListOf()
                 }
             }
     }
@@ -124,7 +123,7 @@ class ChatViewModel : ViewModel() {
             chatId = chatDoc.id,
             membersId = chatDoc.get("membersId") as? List<String> ?: emptyList(),
             lastUpdated = chatDoc.getTimestamp("lastUpdated") ?: Timestamp.now(),
-            messages = emptyList()
+            messages = mutableListOf()
         )
 
         val messagesRef = db.collection("chats")
@@ -155,13 +154,16 @@ class ChatViewModel : ViewModel() {
                         }
                     }
 
+                    val mutableMessageList = messageList.toMutableList()
+
                     _chat.value = _chat.value?.copy(
-                        messages = messageList
+                        messages = mutableMessageList
                     )
                     Log.d("ChatViewModel", "Loaded messages: $messageList")
                 }
             }
-            
+    }
+
     suspend fun createMessage(chatId: String, message: String, userId: String) {
         db.collection("chats").document(chatId).collection("messages")
             .add(

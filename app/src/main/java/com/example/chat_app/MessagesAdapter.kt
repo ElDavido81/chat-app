@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class MessagesAdapter(val messages: MutableList<String>) : RecyclerView.Adapter<MessagesAdapter.ChatViewHolder>()  {
+class MessagesAdapter(var messages: MutableList<Message>) : RecyclerView.Adapter<MessagesAdapter.ChatViewHolder>()  {
 
 
     // Skapar en ny 'rad' (ViewHolder) i vår recyclerview
@@ -22,7 +22,7 @@ class MessagesAdapter(val messages: MutableList<String>) : RecyclerView.Adapter<
 
     // Binder data till varje ViewHolder. Varje elements position i listan har samma position i recyclerview
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
-        holder.messageTextView.text = messages[position]
+        holder.messageTextView.text = messages[position].message
 
         holder.itemView.setOnLongClickListener{
 

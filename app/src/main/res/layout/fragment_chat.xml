@@ -14,6 +14,15 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         >
+        <TextView
+            android:id="@+id/friendNameTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="Friend's Name"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview"

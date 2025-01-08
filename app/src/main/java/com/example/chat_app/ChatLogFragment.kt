@@ -47,8 +47,7 @@ class ChatLogFragment : Fragment() {
     fun createChat(view: View) {
             val receiverEmail = view.findViewById<TextInputEditText>(R.id.friendEmailEditText).text.toString()
             if (receiverEmail.isEmpty()) {
-                val toast =
-                    Toast.makeText(context, "Please enter a valid email.", Toast.LENGTH_LONG)
+                val toast = Toast.makeText(context, "Please enter a valid email.", Toast.LENGTH_LONG)
                 toast.setGravity(Gravity.CENTER, 0, 0)
                 toast.show()
             } else {

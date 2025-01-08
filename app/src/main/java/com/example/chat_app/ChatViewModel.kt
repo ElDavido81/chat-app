@@ -1,10 +1,8 @@
 package com.example.chat_app
 
 import android.util.Log
-import androidx.databinding.BaseObservable
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.android.play.core.integrity.au
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ListenerRegistration
@@ -16,15 +14,15 @@ data class Message(
     val messageId: String,
     val messageByUserId: String,
     val message: String,
-    val messageReadBy: List<String>, // Ska vara bortkommenterad. Sista funktionalitet om vi hinner.
     val timestamp: Timestamp
-)
+    )
 
 data class Chat (
     val chatId: String,
     val chatName: String,
     val memberIds: List<String>,
     var messages: MutableList<Message>? = null,
+      // val messageReadBy: List<String>, // Ska vara bortkommenterad. Sista funktionalitet om vi hinner.
     val lastUpdated: Timestamp
 )
 
@@ -57,8 +55,7 @@ class ChatViewModel : ViewModel() {
                         try {
                             val chat = Chat(
                                 chatId = document.id,
-                                chatName = document.getString("chatName") ?: "",
-                                memberIds = document.get("memberIds") as? List<String> ?: emptyList(),
+                                membersId = document.get("membersId") as? List<String> ?: emptyList(),
                                 lastUpdated = document.getTimestamp("lastUpdated") ?: Timestamp.now()
                             )
                             chatsList.add(chat)
@@ -73,7 +70,7 @@ class ChatViewModel : ViewModel() {
             }
     }
 
-    suspend fun createConversation(creatorUserId: String, receiverEmail: String, onUpdate: (result: CreateChatStatus) -> Unit) {
+    suspend fun createConversation(creatorUserId: String, receiverEmail: String, onUpdate: (result: CreateChatStatus, chatId: String?) -> Unit) {
         try {
             val receiverUser = db.collection("users")
                 .whereEqualTo("email", receiverEmail)
@@ -83,35 +80,88 @@ class ChatViewModel : ViewModel() {
 
             Log.d("!!!!", receiverUser.documents.toString())
             if (receiverUser.isEmpty) {
-                onUpdate(CreateChatStatus.USERNOTFOUND)
+                onUpdate(CreateChatStatus.USERNOTFOUND, null)
             }
 
             val receiverUserId = receiverUser.documents[0].id
 
             val chatExists = db.collection("chats")
-                .whereArrayContains("membersIds",listOf(creatorUserId, receiverUserId))
-                .limit(1)
+                .whereArrayContains("membersId", creatorUserId)
                 .get()
                 .await()
 
-            Log.d("!!!!", chatExists.documents.toString())
-            if (chatExists.isEmpty) {
-                onUpdate(CreateChatStatus.CHATEXISTS)
+            val chatWithBothUsers = if (chatExists.isEmpty) null else {
+                chatExists.documents.firstOrNull { doc ->
+                    val members = doc.get("membersId") as? List<*>
+                    members?.contains(receiverUserId) == true
+                }
+            }
+
+            if (chatWithBothUsers != null) {
+                onUpdate(CreateChatStatus.CHATEXISTS, null)
+                return
             }
 
             val data = hashMapOf(
-                "membersId" to arrayListOf(creatorUserId, receiverUserId),
+                "membersId" to arrayListOf<String>(creatorUserId, receiverUserId),
                 "lastUpdated" to FieldValue.serverTimestamp()
             )
 
-            db.collection("chats").add(data).await()
-            onUpdate(CreateChatStatus.SUCCESS)
+            val newChatId = db.collection("chats").add(data).await()
+            onUpdate(CreateChatStatus.SUCCESS, newChatId.id)
         } catch (ex: Exception) {
-            onUpdate(CreateChatStatus.FAILURE)
+            onUpdate(CreateChatStatus.FAILURE, null)
             Log.d("!!!!", ex.toString())
         }
     }
 
+    suspend fun attachChatListener(chatId: String) {
+        chatListener?.remove()
+
+        val chatDoc = db.collection("chats").document(chatId).get().await()
+
+        _chat.value = Chat(
+            chatId = chatDoc.id,
+            membersId = chatDoc.get("membersId") as? List<String> ?: emptyList(),
+            lastUpdated = chatDoc.getTimestamp("lastUpdated") ?: Timestamp.now(),
+            messages = emptyList()
+        )
+
+        val messagesRef = db.collection("chats")
+            .document(chatId)
+            .collection("messages")
+
+        chatListener = messagesRef
+            .orderBy("timestamp")
+            .limit(100)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("ChatViewModel", "Error listening to messages: ${error.message}")
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    val messageList = snapshot.documents.mapNotNull { doc ->
+                        try {
+                            Message(
+                                messageId = doc.id,
+                                messageByUserId = doc.getString("messageByUserId") ?: "",
+                                message = doc.getString("message") ?: "",
+                                timestamp = doc.getTimestamp("timestamp") ?: Timestamp.now()
+                            )
+                        } catch (e: Exception) {
+                            Log.e("ChatViewModel", "Error parsing message document", e)
+                            null
+                        }
+                    }
+
+                    _chat.value = _chat.value?.copy(
+                        messages = messageList
+                    )
+                    Log.d("ChatViewModel", "Loaded messages: $messageList")
+                }
+            }
+            
     suspend fun createMessage(chatId: String, message: String, userId: String) {
         db.collection("chats").document(chatId).collection("messages")
             .add(

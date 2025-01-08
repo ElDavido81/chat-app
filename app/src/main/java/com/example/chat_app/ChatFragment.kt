@@ -1,6 +1,7 @@
 package com.example.chat_app
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +18,8 @@ class ChatFragment : Fragment() {
     private val chatViewModel: ChatViewModel by activityViewModels()
     private val authViewModel: AuthViewModel by activityViewModels()
 
+    private val chatViewModel: ChatViewModel by activityViewModels()
+    private var chatId: String? = null
     private lateinit var messageBox: EditText
     private lateinit var chatRecyclerView: RecyclerView
     private lateinit var messagesAdapter: MessagesAdapter
@@ -30,13 +33,23 @@ class ChatFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        chatId = arguments?.getString("chatId")
+
+        if (chatId != null) {
+            lifecycleScope.launch {
+                chatViewModel.attachChatListener(chatId!!)
+            }
+        } else {
+            Log.e("ChatFragment", "chatId is null")
+        }
+        
         messageBox = view.findViewById(R.id.messageBox)
         val sendButton = view.findViewById<Button>(R.id.sendButton)
         chatRecyclerView = view.findViewById(R.id.recyclerview)
         chatRecyclerView.layoutManager = LinearLayoutManager(context)
 
         messagesAdapter = MessagesAdapter(chatViewModel.chat.value?.messages ?: mutableListOf())
-        chatRecyclerView.adapter = messagesAdapter
+        chatRecyclerView.adapter = MessagesAdapter(messages)
 
         chatViewModel.chat.observe(viewLifecycleOwner) { chat ->
             val oldMessageCount = messagesAdapter.itemCount
@@ -46,11 +59,12 @@ class ChatFragment : Fragment() {
                 messagesAdapter.notifyItemInserted((newMessages?.size - 1) ?: 0)
                 chatRecyclerView.scrollToPosition((newMessages?.size - 1) ?: 0)
             }
-        }
 
         sendButton.setOnClickListener {
             newMessage()
         }
+    }
+}
     }
 
     private fun newMessage() {

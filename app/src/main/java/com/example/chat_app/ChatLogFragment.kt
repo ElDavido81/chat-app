@@ -1,6 +1,7 @@
 package com.example.chat_app
 
 import android.os.Bundle
+import android.text.TextUtils.replace
 import android.util.Log
 import android.view.Gravity
 import androidx.fragment.app.Fragment
@@ -35,40 +36,55 @@ class ChatLogFragment : Fragment() {
         }
 
         view.findViewById<Button>(R.id.newChatButton).setOnClickListener {
-            val receiverEmail = view.findViewById<TextInputEditText>(R.id.friendEmailEditText).text.toString()
-            if (receiverEmail.isEmpty()) {
-                val toast = Toast.makeText(context, "Please enter a valid email.", Toast.LENGTH_LONG)
-                toast.setGravity(Gravity.CENTER, 0, 0)
-                toast.show()
-            }
-            lifecycleScope.launch {
-                chatViewModel.createConversation(authViewModel.user.value!!.userId, receiverEmail) { status ->
-                    when (status) {
-                        CreateChatStatus.CHATEXISTS -> {
-                            val toast = Toast.makeText(context, "Chat already exists.", Toast.LENGTH_LONG)
-                            toast.setGravity(Gravity.CENTER, 0, 0)
-                            toast.show()
-                        }
-                        CreateChatStatus.USERNOTFOUND -> {
-                            val toast = Toast.makeText(context, "User not found. Check for typo.", Toast.LENGTH_LONG)
-                            toast.setGravity(Gravity.CENTER, 0, 0)
-                            toast.show()
-                        }
-                        CreateChatStatus.FAILURE -> {
-                            val toast = Toast.makeText(context, "Failed to create chat. Try again later.", Toast.LENGTH_LONG)
-                            toast.setGravity(Gravity.CENTER, 0, 0)
-                            toast.show()
-                        }
-                        CreateChatStatus.SUCCESS -> {
-                            Log.d("!!!!", "Success")
-                        }
-                    }
-                }
-            }
+            this.createChat(view)
         }
 
         authViewModel.user.observe(viewLifecycleOwner) { user ->
             view.findViewById<TextView>(R.id.userEmail).text = user?.email ?: "Unavailable"
         }
+    }
+
+    fun createChat(view: View) {
+            val receiverEmail = view.findViewById<TextInputEditText>(R.id.friendEmailEditText).text.toString()
+            if (receiverEmail.isEmpty()) {
+                val toast = Toast.makeText(context, "Please enter a valid email.", Toast.LENGTH_LONG)
+                toast.setGravity(Gravity.CENTER, 0, 0)
+                toast.show()
+            } else {
+                lifecycleScope.launch {
+                    chatViewModel.createConversation(authViewModel.user.value!!.userId, receiverEmail) { status, chatId ->
+                        when (status) {
+                            CreateChatStatus.CHATEXISTS -> {
+                                val toast = Toast.makeText(context, "Chat already exists.", Toast.LENGTH_LONG)
+                                toast.setGravity(Gravity.CENTER, 0, 0)
+                                toast.show()
+                            }
+                            CreateChatStatus.USERNOTFOUND -> {
+                                val toast = Toast.makeText(context, "User not found. Check for typo.", Toast.LENGTH_LONG)
+                                toast.setGravity(Gravity.CENTER, 0, 0)
+                                toast.show()
+                            }
+                            CreateChatStatus.FAILURE -> {
+                                val toast = Toast.makeText(context, "Failed to create chat. Try again later.", Toast.LENGTH_LONG)
+                                toast.setGravity(Gravity.CENTER, 0, 0)
+                                toast.show()
+                            }
+                            CreateChatStatus.SUCCESS -> {
+                                Log.d("!!!!", "Success")
+                                val chatFragment = ChatFragment().apply {
+                                    arguments = Bundle().apply {
+                                        putString("chatId", chatId)
+                                    }
+                                }
+                                parentFragmentManager.beginTransaction().apply {
+                                    replace(R.id.main_container, chatFragment)
+                                    addToBackStack("chatlogfragment")
+                                    commit()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
     }
 }

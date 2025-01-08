@@ -22,12 +22,13 @@ class MessagesAdapter(var messages: MutableList<Message>) : RecyclerView.Adapter
 
     // Binder data till varje ViewHolder. Varje elements position i listan har samma position i recyclerview
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
-        val hours = messages[position].timestamp.toDate().hours.toString()
-        val minutes = messages[position].timestamp.toDate().minutes.toString()
-        val timestamp = "$hours:$minutes"
+        val date = messages[position].timestamp.toDate()
+
+        val simpleDate = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
+        val formattedTime = simpleDate.format(date)
 
         holder.messageTextView.text = messages[position].message
-        holder.timestampTextView.text = timestamp
+        holder.timestampTextView.text = formattedTime
         holder.senderNameTextView.text = messages[position].senderName
     }
 

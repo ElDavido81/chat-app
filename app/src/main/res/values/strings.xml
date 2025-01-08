@@ -10,5 +10,5 @@
     <string name="emaillogin">Email</string>
     <string name="label_password">Password</string>
     <string name="label_email">E-mail</string>
-    <string name="chatlog_list">Top conversations</string>
+    <string name="chatlog_list">Chats</string>
 </resources>

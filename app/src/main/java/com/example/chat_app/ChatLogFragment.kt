@@ -13,12 +13,17 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 
 class ChatLogFragment : Fragment() {
     private val authViewModel: AuthViewModel by activityViewModels()
     private val chatViewModel: ChatViewModel by activityViewModels()
+
+    private lateinit var chatLogRecyclerView: RecyclerView
+    private lateinit var chatAdapter: ChatLogAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,6 +47,25 @@ class ChatLogFragment : Fragment() {
         authViewModel.user.observe(viewLifecycleOwner) { user ->
             view.findViewById<TextView>(R.id.userEmail).text = user?.email ?: "Unavailable"
         }
+
+        chatLogRecyclerView = view.findViewById(R.id.rv_chats)
+        chatLogRecyclerView.layoutManager = LinearLayoutManager(context)
+
+        chatAdapter = ChatLogAdapter(chatViewModel.chats.value!!.toMutableList())
+        chatLogRecyclerView.adapter = chatAdapter
+
+        chatViewModel.chats.observe(viewLifecycleOwner) { chat ->
+            val oldChatsCount = chatAdapter.itemCount
+            val newChats = chat
+            if (newChats.size > oldChatsCount) {
+                chatAdapter.chats = newChats
+                chatAdapter.notifyItemInserted((newChats.size - 1) ?: 0)
+                chatLogRecyclerView.scrollToPosition((newChats.size - 1) ?: 0)
+            }
+        }
+
+
+
     }
 
     fun createChat(view: View) {

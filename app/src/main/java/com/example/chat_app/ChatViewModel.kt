@@ -212,6 +212,13 @@ class ChatViewModel : ViewModel() {
         db.collection("chats").document(chatId).update("lastUpdated", FieldValue.serverTimestamp()).await()
     }
 
+    fun clearListeners() {
+        chatsListener?.remove()
+        chatListener?.remove()
+        _chats.value = mutableListOf()
+        _chat.value = null
+    }
+
     override fun onCleared() {
         super.onCleared()
         chatsListener?.remove()

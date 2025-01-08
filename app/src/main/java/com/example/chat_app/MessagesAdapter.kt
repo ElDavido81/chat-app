@@ -22,8 +22,13 @@ class MessagesAdapter(var messages: MutableList<Message>) : RecyclerView.Adapter
 
     // Binder data till varje ViewHolder. Varje elements position i listan har samma position i recyclerview
     override fun onBindViewHolder(holder: ChatViewHolder, position: Int) {
+        val hours = messages[position].timestamp.toDate().hours.toString()
+        val minutes = messages[position].timestamp.toDate().minutes.toString()
+        val timestamp = "$hours:$minutes"
+
         holder.messageTextView.text = messages[position].message
-        holder.timestampTextView.text = messages[position].timestamp.toDate().toString()
+        holder.timestampTextView.text = timestamp
+        holder.senderNameTextView.text = messages[position].senderName
     }
 
 
@@ -31,5 +36,6 @@ class MessagesAdapter(var messages: MutableList<Message>) : RecyclerView.Adapter
     inner class ChatViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val messageTextView: TextView = itemView.findViewById(R.id.tv_message)
         val timestampTextView: TextView = itemView.findViewById(R.id.timestampTextView)
+        val senderNameTextView: TextView = itemView.findViewById(R.id.senderName_tv)
     }
 }

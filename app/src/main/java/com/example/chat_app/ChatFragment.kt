@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -62,6 +63,7 @@ class ChatFragment : Fragment() {
         chatViewModel.chat.observe(viewLifecycleOwner) { chat ->
             val oldMessageCount = messagesAdapter.itemCount
             val newMessages = chat?.messages ?: mutableListOf()
+            view.findViewById<TextView>(R.id.friendNameTextView).text = chat?.chatName ?: ""
             if (newMessages.size > oldMessageCount) {
                 messagesAdapter.messages = newMessages
                 messagesAdapter.notifyItemInserted((newMessages.size - 1) ?: 0)

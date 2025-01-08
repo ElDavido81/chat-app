@@ -7,16 +7,19 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.launch
 
-class ChatFragment: Fragment() {
+class ChatFragment : Fragment() {
+    private val chatViewModel: ChatViewModel by activityViewModels()
+    private val authViewModel: AuthViewModel by activityViewModels()
 
     private lateinit var messageBox: EditText
     private lateinit var chatRecyclerView: RecyclerView
-
-    // Behöver kopplas till Firebase //
-    private val messages = mutableListOf<String>()
+    private lateinit var messagesAdapter: MessagesAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,27 +30,37 @@ class ChatFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        chatRecyclerView = view.findViewById(R.id.recyclerview)
-        chatRecyclerView.layoutManager = LinearLayoutManager(context)
-        chatRecyclerView.adapter = MessagesAdapter(messages)
-
         messageBox = view.findViewById(R.id.messageBox)
         val sendButton = view.findViewById<Button>(R.id.sendButton)
+        chatRecyclerView = view.findViewById(R.id.recyclerview)
+        chatRecyclerView.layoutManager = LinearLayoutManager(context)
+
+        messagesAdapter = MessagesAdapter(chatViewModel.chat.value?.messages ?: mutableListOf())
+        chatRecyclerView.adapter = messagesAdapter
+
+        chatViewModel.chat.observe(viewLifecycleOwner) { chat ->
+            val oldMessageCount = messagesAdapter.itemCount
+            val newMessages = chat.messages
+            if (newMessages.size > oldMessageCount) {
+                messagesAdapter.messages = newMessages
+                messagesAdapter.notifyItemInserted((newMessages?.size - 1) ?: 0)
+                chatRecyclerView.scrollToPosition((newMessages?.size - 1) ?: 0)
+            }
+        }
 
         sendButton.setOnClickListener {
             newMessage()
         }
-
     }
-
-// Behöver kopplas till Firebase //
 
     private fun newMessage() {
-            val message = messageBox.text.toString()
-            messages.add(message)
-            chatRecyclerView.adapter?.notifyItemInserted(messages.lastIndex)
+        val message = messageBox.text.toString()
+        val chatId = chatViewModel.chat.value?.chatId ?: return
+        val userId = authViewModel.user.value?.userId ?: return
 
+        lifecycleScope.launch {
+            chatViewModel.createMessage(chatId, message, userId)
+            messageBox.setText("")
+        }
     }
-
 }

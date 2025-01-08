@@ -16,7 +16,7 @@ data class Message(
     val messageId: String,
     val messageByUserId: String,
     val message: String,
-    val messageReadBy: List<String>,
+    val messageReadBy: List<String>, // Ska vara bortkommenterad. Sista funktionalitet om vi hinner.
     val timestamp: Timestamp
 )
 
@@ -24,7 +24,7 @@ data class Chat (
     val chatId: String,
     val chatName: String,
     val memberIds: List<String>,
-    var messages: List<Message>? = null,
+    var messages: MutableList<Message>? = null,
     val lastUpdated: Timestamp
 )
 
@@ -110,6 +110,19 @@ class ChatViewModel : ViewModel() {
             onUpdate(CreateChatStatus.FAILURE)
             Log.d("!!!!", ex.toString())
         }
+    }
+
+    suspend fun createMessage(chatId: String, message: String, userId: String) {
+        db.collection("chats").document(chatId).collection("messages")
+            .add(
+                hashMapOf(
+                "message" to message,
+                "messageByUserId" to userId,
+                "timestamp" to FieldValue.serverTimestamp())
+            )
+            .await()
+
+        db.collection("chats").document(chatId).update("lastUpdated", FieldValue.serverTimestamp()).await()
     }
 
     override fun onCleared() {

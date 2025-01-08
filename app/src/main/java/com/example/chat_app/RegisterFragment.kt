@@ -64,6 +64,10 @@ class RegisterFragment: Fragment() {
                 val toast = Toast.makeText(context, "Network issues. Try again later.", Toast.LENGTH_LONG)
                 toast.setGravity(Gravity.CENTER, 0, 0)
                 toast.show()
+            } else if (status == AuthStatus.PASSWORD_TOO_SHORT){
+                val toast = Toast.makeText(context, "Password must be at least 6 characters.", Toast.LENGTH_LONG)
+                toast.setGravity(Gravity.CENTER, 0, 0)
+                toast.show()
             }
         }
     }

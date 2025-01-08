@@ -83,7 +83,10 @@ class AuthViewModel: ViewModel() {
                 onUpdate(AuthStatus.FAILURE)
             }
         } catch (e: Exception) {
-            onUpdate(AuthStatus.NETWORKISSUES)
+            if (password.length < 6) {
+                onUpdate(AuthStatus.PASSWORD_TOO_SHORT)
+                return
+            } else onUpdate(AuthStatus.NETWORKISSUES)
         }
     }
 

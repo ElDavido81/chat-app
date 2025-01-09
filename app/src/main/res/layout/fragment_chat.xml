@@ -19,10 +19,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="8dp"
+            android:textAlignment="center"
             android:text="Friend's Name"
-            android:textColor="@color/black"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textColor="#e5e5e5"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/baloo"
+
+            />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview"

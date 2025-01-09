@@ -39,15 +39,12 @@
                 android:fontFamily="@font/baloo"
                 />
 
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="15dp" />
-
-        <androidx.recyclerview.widget.RecyclerView
+            <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_chats"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:listitem="@layout/chats_list_item"
+            android:padding="10dp"
             />
 
         </LinearLayout>

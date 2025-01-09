@@ -219,6 +219,11 @@ class ChatViewModel : ViewModel() {
         _chat.value = null
     }
 
+    fun resetChat() {
+        chatListener?.remove()
+        _chat.value = null
+    }
+
     override fun onCleared() {
         super.onCleared()
         chatsListener?.remove()

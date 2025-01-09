@@ -40,6 +40,7 @@ class ChatFragment : Fragment() {
         if (chatId != null) {
             Log.d("!!!!useridinchat", authViewModel.user.value!!.email)
             lifecycleScope.launch {
+                chatViewModel.resetChat()
                 chatViewModel.attachChatListener(chatId!!, authViewModel.user.value!!.email)
             }
         } else {

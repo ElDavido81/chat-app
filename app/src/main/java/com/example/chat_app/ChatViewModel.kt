@@ -23,7 +23,6 @@ data class Chat (
     val chatId: String,
     val membersId: List<String>,
     var messages: MutableList<Message>? = null,
-      // val messageReadBy: List<String>, // Not in use. Last function to add if there's time
     val lastUpdated: Timestamp,
     val chatName: String
 )
